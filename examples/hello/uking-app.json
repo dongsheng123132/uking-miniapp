@@ -1,0 +1,25 @@
+{
+  "$schema": "https://raw.githubusercontent.com/dongsheng123132/uking-miniapp/v0.1.0/schema/uking-app.schema.json",
+  "profile": "action-parity/miniapp@0.1",
+  "app": {
+    "id": "org.example.app.hello",
+    "slug": "hello",
+    "name": "打个招呼",
+    "version": "0.1.0",
+    "summary": "最小可运行的小程序样板",
+    "license": "Apache-2.0",
+    "min_host_version": "0.9.70"
+  },
+  "action_parity": "./action-parity.json",
+  "package": {
+    "kind": "web",
+    "web": { "root": "web", "entry": "index.html", "actions": "actions.mjs", "single_file": true }
+  },
+  "ui": {
+    "icon": "lucide:hand",
+    "accent": "#22c55e",
+    "container": "embed",
+    "home_dock": true
+  },
+  "permissions": {}
+}

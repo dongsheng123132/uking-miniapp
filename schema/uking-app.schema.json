@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/dongsheng123132/uking-miniapp/v0.1.0/schema/uking-app.schema.json",
+  "title": "U-King MiniApp Manifest",
+  "description": "Presentation, packaging and permission layer for an ActionParity application. Sits BESIDE action-parity.json and never redefines actions — action-parity.json remains the single source of truth for what the app can do.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["profile", "app", "package", "ui", "permissions"],
+  "properties": {
+    "$schema": { "type": "string" },
+
+    "profile": {
+      "const": "action-parity/miniapp@0.1",
+      "description": "Wire identifier of this profile. Stable across cosmetic revisions of the document."
+    },
+
+    "app": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "slug", "name", "version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$",
+          "description": "Reverse-domain application identity. MUST equal application.id in action-parity.json and MUST be stable across releases."
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9-]{1,23}$",
+          "description": "Action-ID namespace. Every action in action-parity.json MUST start with `app.<slug>.`. Underscores are forbidden so that the MCP tool-name mapping (dots -> underscores) stays collision-free."
+        },
+        "name": { "type": "string", "minLength": 1, "maxLength": 24 },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+].*)?$",
+          "description": "SemVer. MUST equal application.version in action-parity.json."
+        },
+        "summary": { "type": "string", "maxLength": 60, "description": "One line, shown under the icon." },
+        "description": { "type": "string", "maxLength": 500 },
+        "author": { "type": "string" },
+        "homepage": { "type": "string", "pattern": "^https://" },
+        "source": { "type": "string", "pattern": "^https://" },
+        "license": { "type": "string", "description": "SPDX identifier." },
+        "locales": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z]{2}(-[A-Z]{2})?$" },
+          "minItems": 1,
+          "default": ["zh-CN"]
+        },
+        "min_host_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Lowest U-King version that can run this app. The host refuses to install if it is older."
+        }
+      }
+    },
+
+    "action_parity": {
+      "type": "string",
+      "default": "./action-parity.json",
+      "description": "Relative path to the ActionParity manifest. That file MUST validate against action-parity 0.1.0 UNMODIFIED — do not put U-King keys in it."
+    },
+
+    "package": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "enum": ["web", "script", "native"],
+          "description": "web = HTML/JS bundle in the U-King WebView (AI-generatable, sandboxed, cross-platform). script = SKILL.md + scripts, fanned out to installed AI tools. native = an external executable that implements the ActionParity CLI profile."
+        },
+        "web": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["root", "entry"],
+          "properties": {
+            "root": { "type": "string", "default": "web", "pattern": "^[A-Za-z0-9._-]+(/[A-Za-z0-9._-]+)*$" },
+            "entry": { "type": "string", "default": "index.html", "description": "The GUI document." },
+            "actions": {
+              "type": "string",
+              "description": "Relative path (inside root) to a DOM-free ES module that exports one async function per action id. REQUIRED when any action declares execution.headless = true. The GUI document imports the very same module, so there is exactly one implementation per action and the GUI and headless surfaces cannot drift. The host imports it under its bundled Node for headless invocation, and supplies capabilities (AI, files, imaging) through the injected `uking` object — the module itself must not touch the DOM, the filesystem or the network."
+            },
+            "single_file": {
+              "type": "boolean",
+              "default": false,
+              "description": "Hint that the entry document has no sibling assets other than the actions module. Enables a cheaper host path."
+            }
+          }
+        },
+        "script": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["skill_dir", "runtime"],
+          "properties": {
+            "skill_dir": { "type": "string", "default": "skill" },
+            "runtime": { "enum": ["node", "python"] },
+            "entry": { "type": "string" }
+          }
+        },
+        "native": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["exe", "action_cli"],
+          "properties": {
+            "exe": { "type": "string", "description": "Relative path to the executable inside the package." },
+            "action_cli": {
+              "type": "string",
+              "default": "action",
+              "description": "Subcommand implementing the ActionParity CLI profile: `<exe> <action_cli> list|describe|manifest|run <id> --json --no-input`."
+            },
+            "sha256": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$",
+              "description": "Digest of the executable. The host verifies it on install and on every launch."
+            },
+            "platforms": {
+              "type": "array",
+              "items": { "enum": ["windows", "macos", "linux"] },
+              "default": ["windows"]
+            }
+          }
+        }
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "web" } }, "required": ["kind"] }, "then": { "required": ["web"] } },
+        { "if": { "properties": { "kind": { "const": "script" } }, "required": ["kind"] }, "then": { "required": ["script"] } },
+        { "if": { "properties": { "kind": { "const": "native" } }, "required": ["kind"] }, "then": { "required": ["native"] } }
+      ]
+    },
+
+    "ui": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["icon"],
+      "properties": {
+        "icon": {
+          "type": "string",
+          "description": "Relative path to a PNG/SVG (>=128x128 recommended), or `lucide:<name>` to use a built-in glyph."
+        },
+        "accent": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+        "container": {
+          "enum": ["embed", "window", "both"],
+          "default": "embed",
+          "description": "embed = inside the U-King shell; window = its own OS window; both = user's choice."
+        },
+        "window": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "width": { "type": "integer", "minimum": 320, "maximum": 3840, "default": 1000 },
+            "height": { "type": "integer", "minimum": 240, "maximum": 2160, "default": 700 },
+            "resizable": { "type": "boolean", "default": true }
+          }
+        },
+        "home_dock": {
+          "type": "boolean",
+          "default": true,
+          "description": "Offer this app in the U-King home icon row. The user can always override."
+        },
+        "quick_actions": {
+          "type": "array",
+          "maxItems": 6,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["action", "label"],
+            "properties": {
+              "action": { "type": "string", "description": "MUST be an action id declared in action-parity.json." },
+              "label": { "type": "string", "maxLength": 12 },
+              "icon": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Everything is denied by default. The host enforces these in Rust, below the surface — a mini-app cannot widen them from JS.",
+      "properties": {
+        "ai": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "image_generate": { "type": "boolean", "default": false },
+            "image_edit": { "type": "boolean", "default": false },
+            "chat": { "type": "boolean", "default": false },
+            "video_generate": { "type": "boolean", "default": false },
+            "max_calls_per_run": {
+              "type": "integer", "minimum": 1, "maximum": 20, "default": 4,
+              "description": "Hard ceiling per user-initiated run. Stops a runaway loop from draining the user's credits."
+            }
+          }
+        },
+        "fs": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "app_data": {
+              "type": "boolean", "default": true,
+              "description": "Read/write the app's own sandbox only. No other path is ever reachable."
+            },
+            "save_dialog": {
+              "type": "boolean", "default": false,
+              "description": "May open the native Save As dialog. The user picks the path; the app never learns arbitrary paths."
+            },
+            "open_dialog": { "type": "boolean", "default": false }
+          }
+        },
+        "net": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "allow": {
+              "type": "array",
+              "items": { "type": "string", "pattern": "^https://[a-z0-9.-]+(:[0-9]+)?/?$" },
+              "default": [],
+              "description": "Origins appended to the served Content-Security-Policy connect-src. Empty means the app cannot reach the network at all."
+            }
+          }
+        },
+        "host_actions": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z][a-z0-9_-]*)+$" },
+          "default": [],
+          "description": "Host action IDs this app may invoke through uking.action(). Empty means none."
+        }
+      }
+    },
+
+    "market": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "category": { "enum": ["image", "video", "audio", "doc", "dev", "office", "life", "other"] },
+        "tags": { "type": "array", "items": { "type": "string", "maxLength": 12 }, "maxItems": 6 },
+        "screenshots": { "type": "array", "items": { "type": "string" }, "maxItems": 5 },
+        "price": { "enum": ["free", "credits"], "default": "free" }
+      }
+    }
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/dongsheng123132/uking-miniapp/v0.1.0/schema/uking-app-registry.schema.json",
+  "title": "U-King MiniApp Registry Feed",
+  "description": "The shape of a mini-app market feed. A registry is just a static JSON file on any HTTPS host — there is no central authority, and U-King can be pointed at several. Entries are advertisements, not truth: the host re-validates the downloaded package against uking-app.schema.json before installing anything.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["feed_version", "apps"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "feed_version": { "const": "0.1" },
+    "name": { "type": "string", "description": "Display name of this registry, e.g. U-King 官方小程序市场." },
+    "homepage": { "type": "string", "pattern": "^https://" },
+    "updated_at": { "type": "string", "description": "ISO-8601 timestamp of the last rebuild." },
+    "apps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name", "version", "kind", "download", "sha256"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]+$" },
+          "slug": { "type": "string", "pattern": "^[a-z][a-z0-9-]{1,23}$" },
+          "name": { "type": "string", "maxLength": 24 },
+          "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+].*)?$" },
+          "kind": { "enum": ["web", "script", "native"] },
+          "summary": { "type": "string", "maxLength": 60 },
+          "author": { "type": "string" },
+          "homepage": { "type": "string", "pattern": "^https://" },
+          "license": { "type": "string" },
+          "download": {
+            "type": "string",
+            "pattern": "^https://",
+            "description": "URL of the .ukapp (tar.gz). Plain HTTP is rejected by the host."
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$",
+            "description": "Digest of the .ukapp. The host verifies it before unpacking; a mismatch aborts the install."
+          },
+          "size": { "type": "integer", "minimum": 1 },
+          "icon": { "type": "string", "pattern": "^https://" },
+          "min_host_version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+          "category": { "enum": ["image", "video", "audio", "doc", "dev", "office", "life", "other"] },
+          "tags": { "type": "array", "items": { "type": "string", "maxLength": 12 }, "maxItems": 6 },
+          "price": { "enum": ["free", "credits"], "default": "free" },
+          "permissions_summary": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Human-readable permission list shown BEFORE download, so the user is not asked to consent after the bytes are already on disk."
+          },
+          "actions": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Action IDs this app contributes. Lets an agent search the market by capability instead of by name."
+          },
+          "deprecated": { "type": "boolean", "default": false },
+          "yanked_reason": { "type": "string", "description": "Set when a version must not be installed any more (security). The host hides it and warns anyone who already has it." }
+        }
+      }
+    }
+  }
+}

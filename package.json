@@ -1,0 +1,37 @@
+{
+  "name": "uking-miniapp",
+  "version": "0.1.0",
+  "description": "U-King MiniApp Profile — an ActionParity profile for installable, AI-callable mini applications",
+  "type": "module",
+  "license": "Apache-2.0",
+  "bin": {
+    "uking-app": "./bin/uking-app.mjs"
+  },
+  "scripts": {
+    "validate": "node bin/uking-app.mjs validate examples/hello && node bin/uking-app.mjs validate examples/imagefix",
+    "test": "node --test test/schema.test.mjs",
+    "sync-schema": "node scripts/sync-schema.mjs"
+  },
+  "files": [
+    "bin/",
+    "schema/",
+    "profiles/",
+    "examples/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dongsheng123132/uking-miniapp.git"
+  },
+  "keywords": [
+    "actionparity",
+    "shadowcore",
+    "miniapp",
+    "u-king",
+    "agent",
+    "mcp"
+  ],
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

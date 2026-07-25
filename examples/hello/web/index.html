@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<title>打个招呼</title>
+<!--
+  U-King 小程序最小样板。三件事值得抄走：
+
+  1. 不用写 <script src="bridge.js">。宿主在返回这份 HTML 时会自动注入桥，
+     所以 window.uking 一定存在。AI 生成的小程序也不可能忘写。
+
+  2. 业务逻辑不在这个文件里，在 actions.mjs。这里只管画界面和收集输入。
+     页面和无头 CLI import 的是同一个模块 —— 这是 parity 的实现方式，
+     不是「两边各写一遍然后祈祷它们一致」。
+
+  3. 页面里没有任何 API Key、base_url 或外部域名。拿不到，也不允许：
+     宿主下发的 CSP 是 connect-src 'self'，就算写了也发不出去。
+-->
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 32px;
+    font: 14px/1.6 "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    background: #14161a; color: #e6e8ec;
+  }
+  h1 { font-size: 17px; margin: 0 0 4px; }
+  p.sub { margin: 0 0 24px; color: #8b909a; font-size: 12.5px; }
+  .row { display: flex; gap: 8px; max-width: 420px; }
+  input, button { font: inherit; border-radius: 8px; padding: 9px 14px; border: 1px solid #2a2e36; }
+  input { flex: 1; background: #1b1e24; color: inherit; }
+  input:focus { outline: none; border-color: #22c55e; }
+  button { background: #22c55e; color: #06210f; border-color: transparent; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+  #out {
+    margin-top: 20px; padding: 14px 16px; border-radius: 10px;
+    background: #1b1e24; border: 1px solid #2a2e36; min-height: 20px; white-space: pre-wrap;
+  }
+  #out.err { border-color: #7f1d1d; color: #fca5a5; }
+</style>
+</head>
+<body>
+  <h1>打个招呼</h1>
+  <p class="sub">最小可运行的 U-King 小程序 —— 一个动作、零权限、不联网。</p>
+
+  <div class="row">
+    <input id="name" placeholder="输入一个名字" value="世界" maxlength="40" />
+    <button id="go">打招呼</button>
+  </div>
+  <div id="out"></div>
+
+<script type="module">
+const $ = (id) => document.getElementById(id);
+const out = $("out");
+
+$("go").addEventListener("click", async () => {
+  $("go").disabled = true;
+  out.className = "";
+  try {
+    // 经宿主调用，而不是直接 import actions.mjs 自己跑。
+    // 差别在于：走宿主才会做 input_schema 校验、权限检查、事件记账，
+    // 也就是说 GUI 这一面和 CLI 那一面走的是同一条闸门。
+    const r = await window.uking.action("app.hello.greet.say", { name: $("name").value });
+    out.textContent = r.message;
+  } catch (e) {
+    out.className = "err";
+    out.textContent = String(e?.message || e);
+  } finally {
+    $("go").disabled = false;
+  }
+});
+</script>
+</body>
+</html>
