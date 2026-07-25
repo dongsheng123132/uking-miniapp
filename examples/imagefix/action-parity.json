@@ -37,7 +37,7 @@
     {
       "id": "app.imagefix.watermark.remove",
       "title": "Remove a watermark inside a region",
-      "description": "Erase the watermark, logo or stamp inside the given pixel rectangle and reconstruct the underlying texture. Implemented as crop-with-context-ring -> AI edit -> feathered composite back at the original resolution, because the upstream image-edit endpoint accepts no inpainting mask. Consequently every pixel outside the context box is left byte-identical and the output keeps the source's full resolution.",
+      "description": "Erase the watermark, logo or stamp inside the given pixel rectangle and reconstruct the underlying texture. Implemented as crop-with-context-ring -> AI edit -> feathered composite back at the original resolution, because the upstream image-edit endpoint accepts no inpainting mask. Consequently every pixel outside the context box is left byte-identical and the output keeps the source's full resolution. The result is delivered to the host artifact inbox and returned as a reference — never as an inline data URL, because the same action is called from terminal agents that can only consume text.",
       "tags": [
         "image",
         "edit",
@@ -101,16 +101,13 @@
         "additionalProperties": false,
         "required": [
           "ok",
-          "image",
-          "engine_used"
+          "engine_used",
+          "artifact",
+          "message"
         ],
         "properties": {
           "ok": {
             "type": "boolean"
-          },
-          "image": {
-            "type": "string",
-            "description": "data:image/png;base64,... of the full-size result."
           },
           "engine_used": {
             "enum": [
@@ -130,6 +127,41 @@
           },
           "notes": {
             "type": "string"
+          },
+          "artifact": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "path"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "image"
+              },
+              "w": {
+                "type": "integer"
+              },
+              "h": {
+                "type": "integer"
+              },
+              "bytes": {
+                "type": "integer"
+              },
+              "path": {
+                "type": "string",
+                "description": "Absolute path in the host artifact inbox. Text-only clients can read this; a GUI uses uking://localhost/artifact/<id>."
+              }
+            }
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "One human-readable line for terminal clients, e.g. 已去除水印 · 2000×1500."
           }
         }
       },
@@ -169,7 +201,7 @@
     {
       "id": "app.imagefix.text.replace",
       "title": "Replace the text inside a region",
-      "description": "Replace the text inside the given pixel rectangle with new text. Defaults to a local pixel-exact redraw (sample the background median, erase, re-typeset with a system font) because diffusion models corrupt Chinese glyphs; escalates to the AI path only when the measured background is too textured for a flat fill. The chosen path and its evidence are reported in the output.",
+      "description": "Replace the text inside the given pixel rectangle with new text. Defaults to a local pixel-exact redraw (sample the background median, erase, re-typeset with a system font) because diffusion models corrupt Chinese glyphs; escalates to the AI path only when the measured background is too textured for a flat fill. The chosen path and its evidence are reported in the output. Like the watermark action, the result is returned as an artifact reference rather than inline pixels.",
       "tags": [
         "image",
         "edit",
@@ -263,15 +295,13 @@
         "additionalProperties": false,
         "required": [
           "ok",
-          "image",
-          "engine_used"
+          "engine_used",
+          "artifact",
+          "message"
         ],
         "properties": {
           "ok": {
             "type": "boolean"
-          },
-          "image": {
-            "type": "string"
           },
           "engine_used": {
             "enum": [
@@ -305,6 +335,41 @@
           },
           "notes": {
             "type": "string"
+          },
+          "artifact": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "path"
+            ],
+            "properties": {
+              "id": {
+                "type": "string"
+              },
+              "kind": {
+                "const": "image"
+              },
+              "w": {
+                "type": "integer"
+              },
+              "h": {
+                "type": "integer"
+              },
+              "bytes": {
+                "type": "integer"
+              },
+              "path": {
+                "type": "string",
+                "description": "Absolute path in the host artifact inbox. Text-only clients can read this; a GUI uses uking://localhost/artifact/<id>."
+              }
+            }
+          },
+          "message": {
+            "type": "string",
+            "maxLength": 200,
+            "description": "One human-readable line for terminal clients, e.g. 已去除水印 · 2000×1500."
           }
         }
       },

@@ -116,9 +116,19 @@ export async function watermarkRemove(input, ctx) {
   const out = await uking.image.compositeFeather(src.id, back.id, { x: box.x, y: box.y }, sel, feather, offset);
   await uking.ui?.progress?.(100, "完成");
 
+  // 交产物，不交像素。同一个动作会被终端里的 agent 调用，那边只能消化文本；
+  // 往终端吐几 MB base64 既看不见图，又白白撑爆它的上下文。
+  const artifact = await uking.artifact.emit({
+    kind: "image",
+    data: await uking.image.encode(out.id, "png"),
+    action: "app.imagefix.watermark.remove",
+    message: `已去除水印 · ${src.w}×${src.h}`,
+  });
+
   return {
     ok: true,
-    image: await uking.image.encode(out.id, "png"),
+    artifact,
+    message: `已去除水印 · ${src.w}×${src.h}${notes.length ? " · " + notes.join("；") : ""}`,
     engine_used: "ai",
     context_box: { x: box.x, y: box.y, w: box.w, h: box.h },
     ring_delta: ringDelta.map((v) => Math.round(v * 10) / 10),
@@ -213,8 +223,15 @@ export async function textReplace(input, ctx) {
       fit_height: Math.min(glyphBox.h, sel.h),
     });
     await uking.ui?.progress?.(100, "完成");
+    const artifact = await uking.artifact.emit({
+      kind: "image",
+      data: await uking.image.encode(work.id, "png"),
+      action: "app.imagefix.text.replace",
+      message: `已改为「${newText}」· 本地精确重绘 · 未消耗额度`,
+    });
     return {
-      ok: true, image: await uking.image.encode(work.id, "png"), engine_used: "local", measured,
+      ok: true, artifact, engine_used: "local", measured,
+      message: `已改为「${newText}」· 本地精确重绘 · 未消耗额度`,
       notes: bg.stddev > STDDEV_FLAT ? "背景不是纯平色，若边缘有痕迹可改用 AI 重绘" : undefined,
     };
   }
@@ -238,8 +255,15 @@ export async function textReplace(input, ctx) {
   const feather = clamp(Math.round(box.pad * 0.6), 8, Math.max(8, box.pad - 4));
   const out = await uking.image.compositeFeather(src.id, back.id, { x: box.x, y: box.y }, sel, feather, null);
   await uking.ui?.progress?.(100, "完成");
+  const artifact = await uking.artifact.emit({
+    kind: "image",
+    data: await uking.image.encode(out.id, "png"),
+    action: "app.imagefix.text.replace",
+    message: `已改为「${newText}」· AI 重绘`,
+  });
   return {
-    ok: true, image: await uking.image.encode(out.id, "png"), engine_used: "ai", measured,
+    ok: true, artifact, engine_used: "ai", measured,
+    message: `已改为「${newText}」· AI 重绘`,
     notes: "AI 重绘中文长句可能出现错字，请核对；不满意可改用本地重绘",
   };
 }

@@ -169,6 +169,7 @@ uking.file.open(filters)                  // 弹原生「打开」
 uking.storage.get(key) / set(key, value)  // 只在本小程序的沙箱里
 uking.ui.toast(msg) / progress(pct, label) / close()
 uking.image.*                             // 解码 / 裁剪 / 缩放 / 合成 / 编码（见下）
+uking.artifact.emit({kind, data, message})// 交付成品，返回引用（见 §11.1）
 ```
 
 `uking.image.*` 的存在是有意的：动作模块不能用 canvas（Node 里没有），又不该各自去啃图像格式。宿主提供这组原语，小程序只写业务逻辑。
@@ -211,7 +212,38 @@ uking.image.*                             // 解码 / 裁剪 / 缩放 / 合成 /
 
 ---
 
-## 11. 坐标与图像约定
+## 11. 产出：交引用，不交像素
+
+### 11.1 为什么
+
+同一个动作会被三种客户端调用，它们能消化的东西差别极大：
+
+| 调用方 | 能拿什么 |
+|---|---|
+| 小程序 GUI | 像素 —— 它要画出来 |
+| 终端里的 agent（Claude Code / Hermes / 任意 MCP 客户端） | **只有文本** |
+| 远端影子 | 引用 + 事件 |
+
+一个动作往终端返回 `data:image/png;base64,...` 会是几 MB 乱码，白白撑爆 agent 的上下文，而且用户什么也看不见。
+
+所以：**产出 MUST 经 `uking.artifact.emit()` 交给宿主，动作的 `output_schema` 里 MUST NOT 内联大块二进制。** 返回的是引用：
+
+```json
+{ "ok": true,
+  "artifact": { "id": "art_7f3a", "kind": "image", "w": 2000, "h": 1500,
+                "path": "…/.uking/artifacts/art_7f3a.png" },
+  "message": "已去除水印 · 2000×1500" }
+```
+
+`message` 是一行人话，专门给文本客户端看。
+
+### 11.2 宿主责任
+
+- 产物落到统一收件箱，GUI 侧经 `uking://localhost/artifact/<id>` 取像素；
+- 宿主 SHOULD 提供未读计数，供界面做角标；
+- 宿主 MUST NOT 因为一次外部 agent 的调用就抢用户焦点。agent 干活时用户很可能在忙别的，弹窗是骚扰 —— 静默入箱 + 角标，是否查看由用户决定。
+
+## 12. 坐标与图像约定
 
 涉及图像区域的动作，其矩形 MUST 以**源图自然像素**表示，左上角为原点。不是预览像素，不是 CSS 像素，不是百分比。
 
@@ -221,7 +253,7 @@ uking.image.*                             // 解码 / 裁剪 / 缩放 / 合成 /
 
 ---
 
-## 12. 分发
+## 13. 分发
 
 - **`.ukapp`**：tar.gz。用 `uking-app pack <dir>` 打包，校验不通过会拒绝打包。
 - **注册表 feed**：任意 HTTPS 上的一个静态 JSON（见 `schema/uking-app-registry.schema.json`）。**没有中心权威**，宿主可以同时订阅多个源。
@@ -230,7 +262,7 @@ uking.image.*                             // 解码 / 裁剪 / 缩放 / 合成 /
 
 ---
 
-## 13. 符合性
+## 14. 符合性
 
 一个小程序符合 **MiniApp 0.1**，当且仅当：
 
@@ -252,7 +284,7 @@ npx uking-app validate <dir>
 
 ---
 
-## 14. 还没定的事
+## 15. 还没定的事
 
 诚实列出来，免得别人以为这些已经想清楚了：
 
