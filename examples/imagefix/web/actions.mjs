@@ -45,24 +45,20 @@ function normRegion(region, W, H) {
   return { x, y, w, h };
 }
 
-/** 环带（选区外一圈）的逐通道中位数与标准差。中位数抗字形边缘的抗锯齿，均值不抗。 */
-function ringStats(px, rw, rect, inner) {
-  const ch = [[], [], []];
-  for (let y = 0; y < rect.h; y++) {
-    for (let x = 0; x < rect.w; x++) {
-      const outside = x < inner.x || x >= inner.x + inner.w || y < inner.y || y >= inner.y + inner.h;
-      if (!outside) continue;
-      const i = (y * rw + x) * 4;
-      ch[0].push(px[i]); ch[1].push(px[i + 1]); ch[2].push(px[i + 2]);
-    }
-  }
-  if (!ch[0].length) return { median: [0, 0, 0], stddev: 0 };
-  const median = ch.map((a) => { const s = [...a].sort((p, q) => p - q); return s[s.length >> 1]; });
-  const sd = ch.map((a, c) => {
-    const m = a.reduce((s, v) => s + v, 0) / a.length;
-    return Math.sqrt(a.reduce((s, v) => s + (v - m) ** 2, 0) / a.length);
-  });
-  return { median, stddev: Math.max(...sd) };
+/**
+ * 环带统计（选区外一圈的逐通道中位数与标准差）交给宿主算。
+ * 中位数抗字形边缘的抗锯齿，均值不抗 —— 这点很要紧，所以不能图省事用均值。
+ * 之所以不在这里自己算：一个 528×528 的环带是 110 万像素，塞进 JSON 送过来
+ * 又慢又占内存。宿主那边是原生数组，顺手就算完了。
+ */
+const ringStats = (uking, id, rect, inner) => uking.image.ringStats(id, rect, inner);
+
+/** 宿主的 pixels 返回 base64（比 JSON 数字数组小 4 倍以上），这里解回字节。 */
+function bytesOf(res) {
+  const b = atob(res.rgba_b64);
+  const u = new Uint8Array(b.length);
+  for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i);
+  return u;
 }
 
 // ═══════════════════════════ 去水印 ═══════════════════════════
@@ -103,8 +99,9 @@ export async function watermarkRemove(input, ctx) {
     x: selInBox.x - feather, y: selInBox.y - feather,
     w: selInBox.w + 2 * feather, h: selInBox.h + 2 * feather,
   };
-  const a = ringStats(await uking.image.pixels(crop.id, { x: 0, y: 0, w: box.w, h: box.h }), box.w, box, grown);
-  const b = ringStats(await uking.image.pixels(back.id, { x: 0, y: 0, w: box.w, h: box.h }), box.w, box, grown);
+  const full = { x: 0, y: 0, w: box.w, h: box.h };
+  const a = await ringStats(uking, crop.id, full, grown);
+  const b = await ringStats(uking, back.id, full, grown);
   const ringDelta = a.median.map((v, i) => v - b.median[i]);
   const dmax = Math.max(...ringDelta.map(Math.abs));
 
@@ -161,9 +158,10 @@ export async function textReplace(input, ctx) {
   };
   probe.w = clamp(sel.w + 2 * ringW, 1, src.w - probe.x);
   probe.h = clamp(sel.h + 2 * ringW, 1, src.h - probe.y);
-  const px = await uking.image.pixels(src.id, probe);
   const inner = { x: sel.x - probe.x, y: sel.y - probe.y, w: sel.w, h: sel.h };
-  const bg = ringStats(px, probe.w, probe, inner);
+  const bg = await ringStats(uking, src.id, probe, inner);
+  // 字形检测要逐像素看，但只在选区这一小块上做，量级完全可控
+  const px = bytesOf(await uking.image.pixels(src.id, probe));
 
   // 字形色：选区内偏离背景中位数超过 3σ 的像素，取其中位色
   const thr = Math.max(24, bg.stddev * 3);

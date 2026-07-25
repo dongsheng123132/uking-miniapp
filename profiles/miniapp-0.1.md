@@ -172,7 +172,29 @@ uking.image.*                             // 解码 / 裁剪 / 缩放 / 合成 /
 uking.artifact.emit({kind, data, message})// 交付成品，返回引用（见 §11.1）
 ```
 
-`uking.image.*` 的存在是有意的：动作模块不能用 canvas（Node 里没有），又不该各自去啃图像格式。宿主提供这组原语，小程序只写业务逻辑。
+### 9.1 `uking.image.*`
+
+这组原语的存在是有意的：动作模块不能用 canvas（Node 里没有），又不该各自去啃图像格式。更要紧的是，GUI 和无头两条路必须算出**同一个结果** —— 图像数学放在宿主的一份实现里，就不会出现「界面上好好的、AI 调出来的图不一样」这种最难查的偏差。
+
+| 动词 | 语义 |
+|---|---|
+| `decode(src)` → `{id,w,h}` | data URL 或路径 → 句柄 |
+| `clone(id)` | 复制一份 |
+| `crop(id, rect)` / `resize(id, w, h)` | **返回新句柄**（尺寸变了） |
+| `compositeFeather(base, patch, at, sel, feather, offset)` | **返回新句柄**（合并两张图） |
+| `fillRect(id, rect, color, opts)` | **就地修改**，返回原句柄 |
+| `drawText(id, opts)` | **就地修改**，返回原句柄 |
+| `pixels(id, rect)` → `{w,h,rgba_b64}` | 小区域取像素。**大区域会被拒**（>1M 像素） |
+| `ringStats(id, rect, inner)` → `{median,stddev}` | 环带统计，宿主算 |
+| `encode(id, "png")` → data URL | 出图 |
+
+两条规则值得单独强调，都是踩出来的：
+
+**① 「往图上画」的动词 MUST 就地修改。** 它们要是返回新句柄，调用方一不留神继续用旧句柄，绘制就被静默丢弃 —— 动作照样返回 `ok: true`、测量数据全对、图却一个像素没变。这种 bug 只断言 `ok` 的测试完全抓不到。所以语义钉死：**改变尺寸或合并图像的返回新句柄，单纯往上画的一律就地。**
+
+**② 大块像素 MUST NOT 经桥传输。** 一个 528×528 的环带是 110 万像素，塞进 JSON 数字数组是几十 MB。统计类计算放宿主（`ringStats`），确实要逐像素看的只在小区域上做，且以 base64 传输（比 JSON 数字数组小 4 倍以上）。
+
+> 宿主实现提示：非 PNG 输入的解码、以及写字要的字体栅格化，纯 Rust 做不了，可以借 ffmpeg。缺它时 MUST 给出明确提示，而不是悄悄出一张错图。
 
 **GUI 文档 MUST NOT 自行引入桥脚本。** 宿主在返回入口 HTML 时会把桥注入 `<head>`。这样 AI 生成的小程序不可能漏写，两种容器（内嵌 iframe / 独立窗口）的行为也不会分叉。
 
