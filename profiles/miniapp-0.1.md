@@ -45,10 +45,10 @@
 
 ## 3. 与 ActionParity / 影核的关系
 
-本剖面**不是**新协议。它是 ActionParity 0.1.0 的一个剖面，与影核（ShadowCore Profile，`action-parity/sync@0.1`）平级：
+本剖面**不是**新协议。它是 ActionParity 0.2.0 的一个剖面，与影核（ShadowCore Profile，`action-parity/sync@0.1`）平级：
 
 ```
-ActionParity 0.1.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
+ActionParity 0.2.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
         ├── ShadowCore Profile   一核多影：跨设备同步
         └── MiniApp Profile      一壳多用：可安装单元      ← 本文
 ```
@@ -67,7 +67,7 @@ ActionParity 0.1.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
 ```
 <package>/
   uking-app.json        必需  展示 / 打包 / 权限          ← 本规范定义
-  action-parity.json    必需  身份 / 面 / 动作            ← ActionParity 0.1.0 定义
+  action-parity.json    必需  身份 / 面 / 动作            ← ActionParity 0.2.0 定义
   icon.png              ui.icon 指向的文件（除非用 lucide:）
   web/  |  skill/  |  bin/                 按 package.kind 三选一
 ```
@@ -289,7 +289,7 @@ uking.artifact.emit({kind, data, message})// 交付成品，返回引用（见 �
 一个小程序符合 **MiniApp 0.1**，当且仅当：
 
 1. `uking-app.json` 通过 `schema/uking-app.schema.json`，且 `profile` 为 `action-parity/miniapp@0.1`；
-2. `action-parity.json` 通过**未经修改的**上游 ActionParity 0.1.0 校验器；
+2. `action-parity.json` 通过**未经修改的**上游 ActionParity 0.2.0 校验器；
 3. 两份文件的 `id` 与 `version` 一致；
 4. 每个动作 ID 都在 `app.<slug>.` 命名空间内；
 5. 每个动作至少绑定到一个 `kind: "gui"` 的面（有人能点）；
@@ -301,6 +301,21 @@ uking.artifact.emit({kind, data, message})// 交付成品，返回引用（见 �
 ```bash
 npx uking-app validate <dir>
 ```
+
+### 14.1 声明的 parity ≠ 有证据的 parity
+
+ActionParity 0.2.0 把这两件事分开报了，这个区分值得小程序作者认真对待：
+
+| | 含义 |
+|---|---|
+| **Declared parity** | 每个必需面上都有 binding —— 你**说**它们都通 |
+| **Evidenced parity** | 那些 binding 里填了 `test`，指向真实存在的测试 —— 你**证明**了它们都通 |
+
+本仓库的三个示例目前都是 `Declared 100% / Evidenced 0% / AP-1`。这是实话：测试还没写。
+
+> 曾经 imagefix 的 bindings 里填了 `"test": "miniapp-e2e:watermark-remove"` 之类，报告因此显示 `Evidenced 100% / AP-2` —— 而那些测试一个都不存在。发现后全部删除。
+>
+> 这正是本剖面 §8 那句话的另一面：**声明做不到是合规的；声明做得到然后做不到不是。** 填一个指向空气的 `test` 字段，骗的不是校验器，是将来依赖这份清单去自动化的人。宁可显示 AP-1。
 
 宿主侧的符合性（沙箱、权限闸门、桥、解包加固）由宿主承担，不是小程序作者的责任。
 

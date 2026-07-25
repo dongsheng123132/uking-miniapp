@@ -75,7 +75,7 @@ Permissions default to denied and are enforced **below every surface** — the s
 This is not a new protocol. It is an ActionParity profile, a sibling of the ShadowCore (cross-device) profile:
 
 ```
-ActionParity 0.1.0  ── the shared model: actions / state / events / authority
+ActionParity 0.2.0  ── the shared model: actions / state / events / authority
         ├── ShadowCore Profile   one core, many shadows  (cross-device sync)
         └── MiniApp Profile      one shell, many callers (installable units)   ← this repo
 ```
@@ -88,11 +88,13 @@ ActionParity 0.1.0  ── the shared model: actions / state / events / authorit
 
 | Path | What |
 |---|---|
+| [`docs/GETTING-STARTED.zh-CN.md`](./docs/GETTING-STARTED.zh-CN.md) | **Build your first mini-app** (Chinese; English pending) |
 | [`profiles/miniapp-0.1.en.md`](./profiles/miniapp-0.1.en.md) | **The specification** (English) |
 | [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | 规范正文（中文，权威版本） |
 | `schema/uking-app.schema.json` | JSON Schema for the mini-app manifest |
 | `schema/uking-app-registry.schema.json` | Market feed shape — decentralised, any static JSON over HTTPS |
 | `examples/hello/` | The smallest runnable package |
+| `examples/resize/` | The tutorial result: resize an image |
 | `examples/imagefix/` | A real one: drag a box, remove a watermark or replace text |
 | `bin/uking-app.mjs` | validate / pack / info — **zero runtime dependencies** |
 

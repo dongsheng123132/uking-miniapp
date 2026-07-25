@@ -48,10 +48,10 @@ All three converge on one dispatcher inside the host. This is not "the GUI and t
 
 ## 3. Relationship to ActionParity and ShadowCore
 
-This is **not** a new protocol. It is a profile of ActionParity 0.1.0, a sibling of ShadowCore (`action-parity/sync@0.1`):
+This is **not** a new protocol. It is a profile of ActionParity 0.2.0, a sibling of ShadowCore (`action-parity/sync@0.1`):
 
 ```
-ActionParity 0.1.0   — the shared model: actions / state / events / authority
+ActionParity 0.2.0   — the shared model: actions / state / events / authority
         ├── ShadowCore Profile   one core, many shadows  (cross-device sync)
         └── MiniApp Profile      one shell, many callers (installable units)   ← this document
 ```
@@ -70,7 +70,7 @@ Therefore:
 ```
 <package>/
   uking-app.json        required  presentation / packaging / permissions   ← this profile
-  action-parity.json    required  identity / surfaces / actions            ← ActionParity 0.1.0
+  action-parity.json    required  identity / surfaces / actions            ← ActionParity 0.2.0
   icon.png              whatever ui.icon points at (unless `lucide:`)
   web/  |  skill/  |  bin/                      one of, per package.kind
 ```
@@ -294,7 +294,7 @@ Mini-apps SHOULD preserve source resolution. Handing a user's 4000×3000 photogr
 A mini-app conforms to **MiniApp 0.1** if and only if:
 
 1. `uking-app.json` validates against `schema/uking-app.schema.json` with `profile` equal to `action-parity/miniapp@0.1`;
-2. `action-parity.json` passes the **unmodified** upstream ActionParity 0.1.0 validator;
+2. `action-parity.json` passes the **unmodified** upstream ActionParity 0.2.0 validator;
 3. the `id` and `version` in the two files agree;
 4. every action ID lies within the `app.<slug>.` namespace;
 5. every action binds to at least one surface of `kind: "gui"` (a person can reach it);
@@ -306,6 +306,21 @@ One command checks all of it:
 ```bash
 npx uking-app validate <dir>
 ```
+
+### 14.1 Declared parity is not evidenced parity
+
+ActionParity 0.2.0 reports these separately, and mini-app authors should take the distinction seriously:
+
+| | Meaning |
+|---|---|
+| **Declared parity** | every required surface has a binding — you **say** they all work |
+| **Evidenced parity** | those bindings carry a `test` pointing at a test that actually exists — you **proved** it |
+
+All three examples in this repository currently report `Declared 100% / Evidenced 0% / AP-1`. That is the truth: the tests are not written yet.
+
+> `imagefix` once carried `"test": "miniapp-e2e:watermark-remove"` and friends, which made the report read `Evidenced 100% / AP-2` — while none of those tests existed. They were removed once noticed.
+>
+> This is the other half of §8: **declaring that you cannot is conforming; declaring that you can and then not doing it is not.** A `test` field pointing at nothing does not fool the validator — it fools whoever later automates against that manifest. Reporting AP-1 honestly is better.
 
 Host-side conformance (sandboxing, permission gates, the bridge, unpack hardening) is the host's responsibility, not the author's.
 

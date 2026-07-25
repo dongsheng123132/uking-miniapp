@@ -1,8 +1,8 @@
 {
-  "note": "缓存副本，不是真相源。校验器优先用上游；只有找不到上游时才退回这里，并会明确提示。",
+  "note": "缓存副本，不是真相源。校验器优先使用上游；只有找不到上游时才退回这里，并会明确提示。",
   "source_path_at_sync": "C:\\Users\\ZhuanZ\\Desktop\\claude\\cli+gui兼容的ai时代的软件开放框架\\schema\\action-parity.schema.json",
   "upstream_id": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.1.0/schema/action-parity.schema.json",
-  "spec_version": "0.1.0",
-  "sha256": "4c21a1880f2493a2a2311f1f2f751967f43c31081f3ccec1e7208312d0940bba",
+  "spec_version": "0.2.0",
+  "sha256": "6439f651052a035be7742051c47a6708e74a881db8bfa0f211d9f5ed9f9453fb",
   "resync": "npm run sync-schema"
 }

@@ -82,7 +82,7 @@ ActionParity 的 schema 是**封闭的**（根节点和 8 个 `$def` 全都 `add
 本剖面**不是**新协议，是 ActionParity 的一个剖面，与影核平级：
 
 ```
-ActionParity 0.1.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
+ActionParity 0.2.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
         ├── ShadowCore Profile   一核多影：跨设备同步
         └── MiniApp Profile      一壳多用：可安装单元      ← 本仓库
 ```
@@ -95,11 +95,13 @@ ActionParity 0.1.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
 
 | 路径 | 内容 |
 |---|---|
+| [`docs/GETTING-STARTED.zh-CN.md`](./docs/GETTING-STARTED.zh-CN.md) | **做你的第一个小程序**（20 分钟上手） |
 | [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | **规范正文**（中文，权威版本） |
 | [`profiles/miniapp-0.1.en.md`](./profiles/miniapp-0.1.en.md) | English specification |
 | `schema/uking-app.schema.json` | 小程序清单的 JSON Schema |
 | `schema/uking-app-registry.schema.json` | 市场 feed 的形状（去中心，任意 HTTPS 静态 JSON） |
 | `examples/hello/` | 最小可运行样板 |
+| `examples/resize/` | 教程成品：图片改尺寸 |
 | `examples/imagefix/` | 真实小程序：拖框去水印 / 改文字 |
 | `bin/uking-app.mjs` | 校验 / 打包 / 摘要，**零运行时依赖** |
 

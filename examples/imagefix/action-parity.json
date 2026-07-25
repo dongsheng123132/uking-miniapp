@@ -1,6 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.1.0/schema/action-parity.schema.json",
-  "spec_version": "0.1.0",
+  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.2.0/schema/action-parity.schema.json",
+  "spec_version": "0.2.0",
   "application": {
     "id": "org.uking.app.imagefix",
     "name": "图片修补",
@@ -9,8 +9,7 @@
     "homepage": "https://www.u-king.org/apps/imagefix"
   },
   "conformance_targets": [
-    "AP-1",
-    "AP-2"
+    "AP-1"
   ],
   "surfaces": [
     {
@@ -183,18 +182,15 @@
       "bindings": [
         {
           "surface": "miniapp",
-          "target": "uking-rpc:action/app.imagefix.watermark.remove",
-          "test": "miniapp-e2e:watermark-remove"
+          "target": "uking-rpc:action/app.imagefix.watermark.remove"
         },
         {
           "surface": "cli",
-          "target": "cli:action run app.imagefix.watermark.remove --json --no-input --input-file <f>",
-          "test": "miniapp-e2e:cli-binding"
+          "target": "cli:action run app.imagefix.watermark.remove --json --no-input --input-file <f>"
         },
         {
           "surface": "mcp",
-          "target": "mcp:tool/app_imagefix_watermark_remove",
-          "test": "miniapp-e2e:mcp-binding"
+          "target": "mcp:tool/app_imagefix_watermark_remove"
         }
       ]
     },
@@ -391,18 +387,15 @@
       "bindings": [
         {
           "surface": "miniapp",
-          "target": "uking-rpc:action/app.imagefix.text.replace",
-          "test": "miniapp-e2e:text-replace"
+          "target": "uking-rpc:action/app.imagefix.text.replace"
         },
         {
           "surface": "cli",
-          "target": "cli:action run app.imagefix.text.replace --json --no-input --input-file <f>",
-          "test": "miniapp-e2e:cli-binding"
+          "target": "cli:action run app.imagefix.text.replace --json --no-input --input-file <f>"
         },
         {
           "surface": "mcp",
-          "target": "mcp:tool/app_imagefix_text_replace",
-          "test": "miniapp-e2e:mcp-binding"
+          "target": "mcp:tool/app_imagefix_text_replace"
         }
       ]
     }
