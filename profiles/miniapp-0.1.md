@@ -1,6 +1,6 @@
 # U-King 小程序开放规范
 
-**ActionParity MiniApp Profile 0.1** · 线缆标识 `action-parity/miniapp@0.1`
+**ActionParity MiniApp Profile 0.1** · 线缆标识 `action-parity/miniapp@0.1` · [English](./miniapp-0.1.en.md)
 
 > 状态：**非规范性工作草案（non-normative working draft）**。
 > 按 ActionParity 的既定做法，本剖面要等到**两个互相独立的产品**各自走完一遍接入闭环，才谈得上进入规范性文本。
@@ -171,6 +171,8 @@ uking.ui.toast(msg) / progress(pct, label) / close()
 uking.image.*                             // 解码 / 裁剪 / 缩放 / 合成 / 编码（见下）
 uking.artifact.emit({kind, data, message})// 交付成品，返回引用（见 §11.1）
 ```
+
+**GUI 文档 MUST NOT 自行引入桥脚本。** 宿主在返回入口 HTML 时会把桥注入 `<head>`。这样 AI 生成的小程序不可能漏写，两种容器（内嵌 iframe / 独立窗口）的行为也不会分叉。
 
 ### 9.1 `uking.image.*`
 

@@ -88,7 +88,8 @@ ActionParity 0.1.0  ── the shared model: actions / state / events / authorit
 
 | Path | What |
 |---|---|
-| [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | **The specification** (currently Chinese; English text is outstanding work) |
+| [`profiles/miniapp-0.1.en.md`](./profiles/miniapp-0.1.en.md) | **The specification** (English) |
+| [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | 规范正文（中文，权威版本） |
 | `schema/uking-app.schema.json` | JSON Schema for the mini-app manifest |
 | `schema/uking-app-registry.schema.json` | Market feed shape — decentralised, any static JSON over HTTPS |
 | `examples/hello/` | The smallest runnable package |
@@ -101,6 +102,6 @@ ActionParity 0.1.0  ── the shared model: actions / state / events / authorit
 
 **Non-normative working draft.** Following ActionParity's own rule, a profile earns normative status only after **two independent products** complete the adoption loop. There is exactly one implementation today (U-King), so field names may change; the `profile` constant will not.
 
-[Section 14 of the spec](./profiles/miniapp-0.1.md) lists what is honestly unsettled: signing and trust chain, billing attribution, data migration across upgrades, app-to-app calls, non-Windows hosts, and the English normative text. Arguments welcome in the issues.
+[Section 15 of the spec](./profiles/miniapp-0.1.en.md) lists what is honestly unsettled: signing and trust chain, billing attribution, data migration across upgrades, app-to-app calls, and non-Windows hosts. Arguments welcome in the issues.
 
 License: Apache-2.0

@@ -95,7 +95,8 @@ ActionParity 0.1.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
 
 | 路径 | 内容 |
 |---|---|
-| [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | **规范正文**（含还没定的事） |
+| [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | **规范正文**（中文，权威版本） |
+| [`profiles/miniapp-0.1.en.md`](./profiles/miniapp-0.1.en.md) | English specification |
 | `schema/uking-app.schema.json` | 小程序清单的 JSON Schema |
 | `schema/uking-app-registry.schema.json` | 市场 feed 的形状（去中心，任意 HTTPS 静态 JSON） |
 | `examples/hello/` | 最小可运行样板 |
@@ -108,6 +109,6 @@ ActionParity 0.1.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
 
 **非规范性工作草案。** 按 ActionParity 的既定做法，要等**两个互相独立的产品**各自走完接入闭环才谈得上进入规范性文本。现在只有 U-King 一家实现，所以字段名可能变，`profile` 常量不会变。
 
-[规范正文第 15 节](./profiles/miniapp-0.1.md#15-还没定的事)如实列出了还没想清楚的事：签名与信任链、计费归属、升级时的数据迁移、小程序互调、非 Windows 宿主、英文规范文本。欢迎在 issue 里争论。
+[规范正文第 15 节](./profiles/miniapp-0.1.md#15-还没定的事)如实列出了还没想清楚的事：签名与信任链、计费归属、升级时的数据迁移、小程序互调、非 Windows 宿主。欢迎在 issue 里争论。
 
 许可：Apache-2.0
