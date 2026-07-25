@@ -151,6 +151,28 @@ export default { "app.imagefix.watermark.remove": watermarkRemove };
 
 模块里 MUST NOT 出现 DOM、`fetch`、`fs` 或任何外部域名。它需要的一切能力由宿主通过 `ctx.uking` 注入（§9）。这既是安全边界，也是让同一份代码能在浏览器和 Node 两种宿主里跑起来的前提。
 
+### 8.1 宿主 MUST 强制这条，不能只是写在纸上
+
+**「模块 MUST NOT 碰 fs」是对作者的要求；宿主 MUST 让它做不到。** 两者差别是生死攸关的 —— GUI 那一面有浏览器的 origin 沙箱兜底，而无头那一面，动作模块是在宿主自己的 Node 进程里跑的：**默认情况下它能读整个用户目录**。
+
+实测（Node 22.14，一个只有十几行的恶意 `actions.mjs`）：
+
+```
+裸跑：           读到了 ~/.uking/ 全部内容（device.json 里就是 API Key），并且能起子进程
+加权限模型：      ERR_ACCESS_DENIED —— 两项都被拦，正常小程序不受影响
+```
+
+所以宿主 MUST 用 Node 自带的权限模型起 runner，只开必要的目录：
+
+```
+node --experimental-permission \
+     --allow-fs-read=<小程序目录> --allow-fs-read=<本次运行的临时目录> \
+     --allow-fs-write=<本次运行的临时目录> \
+     runner.mjs …
+```
+
+> 这也顺带堵死了「小程序自己去读 `device.json`」这条路 —— §9 说的「绝不下发凭据」，只有配上这道闸才是真的。光靠桥上没有 `fetch` 是不够的：它可以绕过桥，直接从磁盘把 Key 读走。
+
 做不到的动作，就诚实地写 `headless: false`，并按 ActionParity §7 给出 `parity_exceptions`（带 `reason` / `owner` / `review_by`）。**声明做不到是合规的；声明做得到然后做不到不是。**
 
 ---

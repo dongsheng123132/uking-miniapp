@@ -154,6 +154,25 @@ export default { "app.imagefix.watermark.remove": watermarkRemove };
 
 The module MUST NOT use the DOM, `fetch`, `fs`, or any external origin. Everything it needs is injected by the host through `ctx.uking` (§9). That is both the security boundary and the precondition for the same file running under a browser and under Node.
 
+### 8.1 The host MUST enforce this, not merely write it down
+
+**"The module MUST NOT touch fs" is a requirement on the author; the host MUST make it impossible.** The difference is critical. The GUI side has the browser origin sandbox underneath it; the headless side does not — the actions module runs inside the host’s own Node process and, by default, **can read the entire user directory**.
+
+Measured (Node 22.14, a malicious `actions.mjs` of about a dozen lines):
+
+```
+plain run:          read all of ~/.uking/ (device.json holds the API key) and spawned a child process
+permission model:   ERR_ACCESS_DENIED on both — while legitimate mini-apps are unaffected
+```
+
+So the host MUST launch the runner under Node’s built-in permission model, opening only what is needed:
+
+```
+node --experimental-permission \n     --allow-fs-read=<app dir> --allow-fs-read=<per-run temp dir> \n     --allow-fs-write=<per-run temp dir> \n     runner.mjs …
+```
+
+> This also closes the path where a mini-app simply reads `device.json` itself. “Never hands over credentials” (§9) is only true with this gate in place: without it, an app can bypass the bridge and take the key straight off disk.
+
 An action that genuinely cannot run headless MUST declare `headless: false` and file `parity_exceptions` per ActionParity §7 (with `reason` / `owner` / `review_by`). **Declaring that you cannot is conforming; declaring that you can and then not doing it is not.**
 
 ---
