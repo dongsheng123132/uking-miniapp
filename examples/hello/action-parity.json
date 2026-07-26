@@ -1,6 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.2.0/schema/action-parity.schema.json",
-  "spec_version": "0.2.0",
+  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.3.0/schema/action-parity.schema.json",
+  "spec_version": "0.3.0",
   "application": {
     "id": "org.example.app.hello",
     "name": "打个招呼",
@@ -15,13 +15,15 @@
       "id": "miniapp",
       "kind": "gui",
       "required_for_parity": true,
-      "description": "A text box and a button."
+      "description": "A text box and a button.",
+      "reachability": "in-process"
     },
     {
       "id": "cli",
       "kind": "cli",
       "required_for_parity": true,
-      "description": "U-King.exe action run app.hello.greet.say --json --input '{\"name\":\"世界\"}'"
+      "description": "U-King.exe action run app.hello.greet.say --json --input '{\"name\":\"世界\"}'",
+      "reachability": "external"
     }
   ],
   "actions": [
@@ -73,7 +75,8 @@
         "headless": true,
         "idempotent": true,
         "cancellable": false,
-        "timeout_ms": 5000
+        "timeout_ms": 5000,
+        "headless_evidence": "U-King.exe action run app.hello.greet.say --json --input <json>"
       },
       "bindings": [
         {

@@ -8,7 +8,7 @@
     "uking-app": "./bin/uking-app.mjs"
   },
   "scripts": {
-    "validate": "node bin/uking-app.mjs validate examples/hello && node bin/uking-app.mjs validate examples/resize && node bin/uking-app.mjs validate examples/imagefix",
+    "validate": "node bin/uking-app.mjs validate examples/hello && node bin/uking-app.mjs validate examples/resize && node bin/uking-app.mjs validate examples/imagefix && node bin/uking-app.mjs validate examples/idcard",
     "test": "node --test test/schema.test.mjs",
     "sync-schema": "node scripts/sync-schema.mjs"
   },

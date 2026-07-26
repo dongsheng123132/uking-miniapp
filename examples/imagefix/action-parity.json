@@ -1,6 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.2.0/schema/action-parity.schema.json",
-  "spec_version": "0.2.0",
+  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.3.0/schema/action-parity.schema.json",
+  "spec_version": "0.3.0",
   "application": {
     "id": "org.uking.app.imagefix",
     "name": "图片修补",
@@ -17,19 +17,22 @@
       "kind": "gui",
       "required_for_parity": true,
       "test_driver": "uking-miniapp-webview",
-      "description": "U-King MiniApp WebView shell. The user drags a box over the region; the box is reported in source-image natural pixels."
+      "description": "U-King MiniApp WebView shell. The user drags a box over the region; the box is reported in source-image natural pixels.",
+      "reachability": "in-process"
     },
     {
       "id": "cli",
       "kind": "cli",
       "required_for_parity": true,
-      "description": "U-King.exe action run app.imagefix.* --json --no-input --input-file <f>. --input-file is required rather than --input because a data URL exceeds the Windows 32KB command-line limit."
+      "description": "U-King.exe action run app.imagefix.* --json --no-input --input-file <f>. --input-file is required rather than --input because a data URL exceeds the Windows 32KB command-line limit.",
+      "reachability": "external"
     },
     {
       "id": "mcp",
       "kind": "mcp",
       "required_for_parity": false,
-      "description": "Exposed through `U-King.exe mcp serve` as app_imagefix_watermark_remove / app_imagefix_text_replace."
+      "description": "Exposed through `U-King.exe mcp serve` as app_imagefix_watermark_remove / app_imagefix_text_replace.",
+      "reachability": "local-ipc"
     }
   ],
   "actions": [
@@ -177,7 +180,8 @@
         "idempotent": false,
         "cancellable": true,
         "timeout_ms": 600000,
-        "progress_events": true
+        "progress_events": true,
+        "headless_evidence": "U-King.exe action run app.imagefix.text.replace --json --no-input --input-file <f>"
       },
       "bindings": [
         {
@@ -382,7 +386,8 @@
         "idempotent": false,
         "cancellable": true,
         "timeout_ms": 600000,
-        "progress_events": true
+        "progress_events": true,
+        "headless_evidence": "U-King.exe action run app.imagefix.text.replace --json --no-input --input-file <f>"
       },
       "bindings": [
         {

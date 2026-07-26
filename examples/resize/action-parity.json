@@ -1,6 +1,6 @@
 {
-  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.2.0/schema/action-parity.schema.json",
-  "spec_version": "0.2.0",
+  "$schema": "https://raw.githubusercontent.com/dongsheng123132/action-parity/v0.3.0/schema/action-parity.schema.json",
+  "spec_version": "0.3.0",
   "application": {
     "id": "org.example.app.resize",
     "name": "改尺寸",
@@ -16,13 +16,15 @@
       "id": "miniapp",
       "kind": "gui",
       "required_for_parity": true,
-      "description": "Drop an image, pick a size, save."
+      "description": "Drop an image, pick a size, save.",
+      "reachability": "in-process"
     },
     {
       "id": "cli",
       "kind": "cli",
       "required_for_parity": true,
-      "description": "U-King.exe action run app.resize.image.fit --json --input-file <f>"
+      "description": "U-King.exe action run app.resize.image.fit --json --input-file <f>",
+      "reachability": "external"
     }
   ],
   "actions": [
@@ -129,7 +131,8 @@
         "headless": true,
         "idempotent": true,
         "cancellable": false,
-        "timeout_ms": 30000
+        "timeout_ms": 30000,
+        "headless_evidence": "U-King.exe action run app.resize.image.fit --json --no-input --input-file <f>"
       },
       "bindings": [
         {

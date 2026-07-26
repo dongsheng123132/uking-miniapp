@@ -16,7 +16,7 @@
       "type": "string"
     },
     "spec_version": {
-      "const": "0.2.0"
+      "const": "0.3.0"
     },
     "application": {
       "$ref": "#/$defs/application"
@@ -120,6 +120,14 @@
         },
         "description": {
           "type": "string"
+        },
+        "reachability": {
+          "enum": [
+            "in-process",
+            "local-ipc",
+            "external"
+          ],
+          "description": "Who can invoke this Surface. Absent means in-process for ipc and test, and the honest default for the kind otherwise. A Surface only its own application can reach is not machine access."
         }
       }
     },
@@ -259,6 +267,11 @@
         },
         "progress_events": {
           "type": "boolean"
+        },
+        "headless_evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path or command that demonstrates headless execution. headless:true without this is a claim, not evidence."
         }
       }
     },

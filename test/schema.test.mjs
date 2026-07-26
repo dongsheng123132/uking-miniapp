@@ -32,7 +32,7 @@ function mutated(example, mutate) {
 const hasErr = (r, needle) => r.errors.some((e) => e.includes(needle));
 
 test("示例包本身必须通过", () => {
-  for (const ex of ["hello", "resize", "imagefix"]) {
+  for (const ex of ["hello", "resize", "imagefix", "idcard"]) {
     const r = validatePackage(path.join(REPO, "examples", ex));
     assert.equal(r.ok, true, `${ex} 未通过:\n${r.errors.join("\n")}`);
   }
