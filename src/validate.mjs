@@ -141,6 +141,40 @@ export function validatePackage(dir) {
   const idSet = new Set(ids);
   for (const q of app.ui?.quick_actions ?? [])
     if (!idSet.has(q.action)) errors.push(`ui.quick_actions 引用了不存在的动作 "${q.action}"`);
+
+  // ── 标注声明必须真的对得上动作契约 ──
+  // 不校验的话，ui.annotation 就是一句装饰：宿主采集完标注往一个不存在的字段里塞，
+  // 动作拿不到坐标，而错误要等到用户点下去才暴露。
+  const ann = app.ui?.annotation;
+  if (ann) {
+    const target = ann.action ?? app.ui?.quick_actions?.[0]?.action;
+    if (!target) {
+      errors.push("ui.annotation 没指定 action，quick_actions 也是空的 —— 采集完的标注不知道喂给谁");
+    } else if (!idSet.has(target)) {
+      errors.push(`ui.annotation.action 指向不存在的动作 "${target}"`);
+    } else {
+      const spec = (parity.actions ?? []).find((a) => a.id === target);
+      const props = spec?.input_schema?.properties ?? {};
+      for (const [field, label] of [
+        [ann.target_field, "target_field"],
+        [ann.image_field ?? "image", "image_field"],
+      ]) {
+        if (!(field in props))
+          errors.push(`ui.annotation.${label} = "${field}"，但动作 ${target} 的 input_schema 里没有这个字段`);
+      }
+      // 形状与字段类型对不上是最隐蔽的一种错：quad 要数组、rect 要对象
+      const t = props[ann.target_field]?.type;
+      const wantArray = ann.kind === "quad" || ann.kind === "freehand" || ann.kind === "point";
+      if (t && wantArray && t !== "array")
+        errors.push(`ui.annotation.kind = "${ann.kind}" 产出数组，但 ${target} 的 ${ann.target_field} 声明成了 ${t}`);
+      if (t && ann.kind === "rect" && t !== "object")
+        errors.push(`ui.annotation.kind = "rect" 产出 {x,y,w,h} 对象，但 ${target} 的 ${ann.target_field} 声明成了 ${t}`);
+      // 宿主侧现实：redline 的标注种类目前是 rect/arrow/freehand/note，没有 quad。
+      // 声明 quad 不算违规（契约是对的），但作者应该知道宿主可能还采不了。
+      if (ann.kind === "quad")
+        warnings.push('ui.annotation.kind = "quad"：宿主的标注面目前只有 rect/freehand/point，四点采集需要宿主先支持，否则会退回小程序自带的界面。');
+    }
+  }
   for (const h of app.permissions?.host_actions ?? [])
     if (h.startsWith("app.")) errors.push(`permissions.host_actions 里的 "${h}" 看着像小程序动作 —— 这里只填宿主动作`);
 

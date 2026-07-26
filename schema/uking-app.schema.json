@@ -158,6 +158,36 @@
           "default": true,
           "description": "Offer this app in the U-King home icon row. The user can always override."
         },
+        "annotation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "target_field"],
+          "description": "Declare that this app needs the user to mark something on an image or document, and let the HOST collect it. The host opens its own viewer/annotation surface, converts the result to source-natural pixels, and puts it in the named input field before invoking the action. An app that declares this does not need to implement any picking UI — which removes the part an AI is most likely to get wrong (coordinate conversion, drag handles, zoom).",
+          "properties": {
+            "kind": {
+              "enum": ["rect", "quad", "point", "freehand"],
+              "description": "rect → {x,y,w,h}; quad → four [x,y] corners ordered top-left, top-right, bottom-right, bottom-left; point → [x,y]; freehand → an array of [x,y]. All in SOURCE-NATURAL PIXELS by the time the action sees them."
+            },
+            "target_field": {
+              "type": "string",
+              "description": "Which field of the action's input_schema receives the annotation, e.g. `region` or `corners`. MUST exist in that schema."
+            },
+            "action": {
+              "type": "string",
+              "description": "Which action this annotation feeds. Defaults to the first quick_action."
+            },
+            "prompt": {
+              "type": "string",
+              "maxLength": 40,
+              "description": "One short line shown while the user marks, e.g. 框住要去掉的水印."
+            },
+            "image_field": {
+              "type": "string",
+              "default": "image",
+              "description": "Which input field receives the image the user annotated."
+            }
+          }
+        },
         "quick_actions": {
           "type": "array",
           "maxItems": 6,

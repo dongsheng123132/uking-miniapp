@@ -35,7 +35,14 @@
         "label": "抠正",
         "icon": "lucide:scan-line"
       }
-    ]
+    ],
+    "annotation": {
+      "kind": "quad",
+      "target_field": "corners",
+      "action": "app.idcard.card.extract",
+      "prompt": "点四个角把证件圈住",
+      "image_field": "image"
+    }
   },
   "permissions": {
     "fs": {

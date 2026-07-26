@@ -11,34 +11,75 @@
     "author": "U-King",
     "homepage": "https://www.u-king.org/apps/imagefix",
     "license": "Apache-2.0",
-    "locales": ["zh-CN"],
+    "locales": [
+      "zh-CN"
+    ],
     "min_host_version": "0.9.70"
   },
   "action_parity": "./action-parity.json",
   "package": {
     "kind": "web",
-    "web": { "root": "web", "entry": "index.html", "actions": "actions.mjs" }
+    "web": {
+      "root": "web",
+      "entry": "index.html",
+      "actions": "actions.mjs"
+    }
   },
   "ui": {
     "icon": "icon.png",
     "accent": "#7c5cff",
     "container": "both",
-    "window": { "width": 1100, "height": 760, "resizable": true },
+    "window": {
+      "width": 1100,
+      "height": 760,
+      "resizable": true
+    },
     "home_dock": true,
     "quick_actions": [
-      { "action": "app.imagefix.watermark.remove", "label": "去水印", "icon": "lucide:eraser" },
-      { "action": "app.imagefix.text.replace", "label": "改文字", "icon": "lucide:type" }
-    ]
+      {
+        "action": "app.imagefix.watermark.remove",
+        "label": "去水印",
+        "icon": "lucide:eraser"
+      },
+      {
+        "action": "app.imagefix.text.replace",
+        "label": "改文字",
+        "icon": "lucide:type"
+      }
+    ],
+    "annotation": {
+      "kind": "rect",
+      "target_field": "region",
+      "action": "app.imagefix.watermark.remove",
+      "prompt": "框住要去掉的水印",
+      "image_field": "image"
+    }
   },
   "permissions": {
-    "ai": { "image_edit": true, "image_generate": false, "chat": false, "video_generate": false, "max_calls_per_run": 3 },
-    "fs": { "app_data": true, "save_dialog": true, "open_dialog": true },
-    "net": { "allow": [] },
+    "ai": {
+      "image_edit": true,
+      "image_generate": false,
+      "chat": false,
+      "video_generate": false,
+      "max_calls_per_run": 3
+    },
+    "fs": {
+      "app_data": true,
+      "save_dialog": true,
+      "open_dialog": true
+    },
+    "net": {
+      "allow": []
+    },
     "host_actions": []
   },
   "market": {
     "category": "image",
-    "tags": ["去水印", "改字", "电商图"],
+    "tags": [
+      "去水印",
+      "改字",
+      "电商图"
+    ],
     "price": "credits"
   }
 }

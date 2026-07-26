@@ -30,8 +30,8 @@
     {
       "id": "mcp",
       "kind": "mcp",
-      "required_for_parity": false,
-      "description": "Exposed through `U-King.exe mcp serve` as app_imagefix_watermark_remove / app_imagefix_text_replace.",
+      "required_for_parity": true,
+      "description": "Exposed through `U-King.exe mcp serve --allow-write` as app_imagefix_*. Verified: both actions appear in tools/list and are callable.",
       "reachability": "local-ipc"
     }
   ],
