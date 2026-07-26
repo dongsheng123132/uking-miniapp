@@ -95,6 +95,7 @@ ActionParity 0.2.0  ── 动作 / 状态 / 事件 / 授权 的公共模型
 
 | 路径 | 内容 |
 |---|---|
+| [`skill/uking-miniapp/`](./skill/uking-miniapp) | **AI 技能包** —— 装给 Claude Code / ClawX，说一句就让它做小程序 |
 | [`docs/GETTING-STARTED.zh-CN.md`](./docs/GETTING-STARTED.zh-CN.md) | **做你的第一个小程序**（20 分钟上手） |
 | [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | **规范正文**（中文，权威版本） |
 | [`profiles/miniapp-0.1.en.md`](./profiles/miniapp-0.1.en.md) | English specification |

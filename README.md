@@ -88,6 +88,7 @@ ActionParity 0.2.0  ── the shared model: actions / state / events / authorit
 
 | Path | What |
 |---|---|
+| [`skill/uking-miniapp/`](./skill/uking-miniapp) | **The AI skill** — install into Claude Code / ClawX and just ask for a mini-app |
 | [`docs/GETTING-STARTED.zh-CN.md`](./docs/GETTING-STARTED.zh-CN.md) | **Build your first mini-app** (Chinese; English pending) |
 | [`profiles/miniapp-0.1.en.md`](./profiles/miniapp-0.1.en.md) | **The specification** (English) |
 | [`profiles/miniapp-0.1.md`](./profiles/miniapp-0.1.md) | 规范正文（中文，权威版本） |
