@@ -16,7 +16,7 @@
       "type": "string"
     },
     "spec_version": {
-      "const": "0.3.0"
+      "const": "0.5.0"
     },
     "application": {
       "$ref": "#/$defs/application"
@@ -49,6 +49,23 @@
     },
     "state": {
       "$ref": "#/$defs/state"
+    },
+    "generated_from": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "generator"
+      ],
+      "properties": {
+        "generator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "type": "string"
+        }
+      },
+      "description": "Where this manifest was generated from. Never treated as verified: a validator cannot re-run a generator it does not have."
     }
   },
   "$defs": {
@@ -128,6 +145,11 @@
             "external"
           ],
           "description": "Who can invoke this Surface. Absent means in-process for ipc and test, and the honest default for the kind otherwise. A Surface only its own application can reach is not machine access."
+        },
+        "exclusion_reason": {
+          "type": "string",
+          "minLength": 8,
+          "description": "Why this machine Surface is not required for parity. Demoting a Surface shrinks the parity denominator, so the reason must be stated rather than implied."
         }
       }
     },
@@ -344,6 +366,52 @@
             "type": "string",
             "pattern": "^[a-z][a-z0-9_-]*(\\.[a-z][a-z0-9_-]*)+$"
           }
+        },
+        "external_resources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/externalResource"
+          },
+          "description": "Truth sources outside this application that its Actions read or write. Shared configuration is where cross-product drift actually happens."
+        }
+      }
+    },
+    "externalResource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "access",
+        "exclusive"
+      ],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Location of the shared truth, as a path, URI, or registry key."
+        },
+        "access": {
+          "enum": [
+            "read",
+            "write",
+            "read-write"
+          ]
+        },
+        "exclusive": {
+          "type": "boolean",
+          "description": "True only when this application is the sole writer. False means another product can write the same resource."
+        },
+        "concurrency": {
+          "enum": [
+            "last-writer-wins",
+            "optimistic",
+            "advisory-lock",
+            "exclusive-lock"
+          ],
+          "description": "How a concurrent write from another writer is handled. Required when the resource is shared and written."
+        },
+        "notes": {
+          "type": "string"
         }
       }
     }
