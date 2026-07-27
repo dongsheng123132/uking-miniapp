@@ -251,7 +251,15 @@ $("apply").onclick = async () => {
     const r = await window.uking.action(id, input);
     history.push(dataUrl);
     $("undo").disabled = false;
-    await load(r.image);
+    // 动作返回的是**引用不是像素** —— 这是给 AI 的硬约定（别把整张图塞进返回值）。
+    // 所以这里绝不能读 r.image：那个字段从来就不存在，读到 undefined 会让
+    // `im.src = undefined` 走 onerror，报成「这张图打不开」——
+    // AI 额度已经花掉了，结果却拿不回来。取图必须走产出箱地址。
+    await load(`uking://localhost/artifact/${r.artifact.id}`);
+    // 后续动作的入参、保存、撤销都要 data URL（decode/file.save 只吃 data URL 或绝对路径），
+    // 而 load 把 dataUrl 设成了 uking:// 地址，这里覆盖回来。
+    // canvas 是原始分辨率、选框画在覆盖层不在画布上，导出即原图。
+    dataUrl = cv.toDataURL("image/png");
     const how = r.engine_used === "local" ? "本地精确重绘（没花额度）" : "AI 重绘";
     say(`完成 · ${how}${r.notes ? " · " + r.notes : ""}`, "ok");
   } catch (e) {
